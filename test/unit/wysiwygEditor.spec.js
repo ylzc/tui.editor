@@ -577,7 +577,7 @@ describe('WysiwygEditor', () => {
       const {top: cursorTop, height: cursorHeight} = sqe.getCursorPosition();
       const {top: editorTop, height: editorHeight} = wwe.$editorContainerEl.get(0).getBoundingClientRect();
       expect(cursorTop >= 0).toBe(true);
-      expect(cursorTop + cursorHeight <= editorTop + editorHeight).toBe(true);
+      expect(Math.floor(cursorTop + cursorHeight) <= Math.floor(editorTop + editorHeight)).toBe(true);
     });
 
     it('should scroll to cursor at the first', () => {
@@ -595,7 +595,7 @@ describe('WysiwygEditor', () => {
       const {top: editorTop, height: editorHeight} = wwe.$editorContainerEl.get(0).getBoundingClientRect();
 
       expect(cursorTop - editorTop >= 0).toBe(true);
-      expect(cursorTop + cursorHeight <= editorTop + editorHeight).toBe(true);
+      expect(Math.floor(cursorTop + cursorHeight) <= Math.floor(editorTop + editorHeight)).toBe(true);
     });
   });
 });
