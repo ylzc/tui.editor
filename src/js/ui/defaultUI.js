@@ -284,7 +284,7 @@ class DefaultUI {
 
   /**
    * get toolbar instance
-   * @returns {DefaultToolbar} - toolbar instance
+   * @returns {Toolbar} - toolbar instance
    * @memberof DefaultUI
    */
   getToolbar() {
@@ -293,7 +293,7 @@ class DefaultUI {
 
   /**
    * set toolbar instance
-   * @param {DefaultToolbar} toolbar - toolbar
+   * @param {Toolbar} toolbar - toolbar
    * @memberof DefaultUI
    */
   setToolbar(toolbar) {
@@ -333,6 +333,22 @@ class DefaultUI {
   }
 
   /**
+   * get Table Popup
+   * @returns {PopupTableUtils} - PopupTableUtils
+   * @memberof DefaultUI
+   */
+  getPopupTableUtils() {
+    let tablePopup;
+    this._popups.forEach(popup => {
+      if (popup instanceof PopupTableUtils) {
+        tablePopup = popup;
+      }
+    });
+
+    return tablePopup;
+  }
+
+  /**
    * hide
    * @memberof DefaultUI
    */
@@ -354,6 +370,11 @@ class DefaultUI {
    */
   remove() {
     this.$el.remove();
+    this._markdownTab.remove();
+    this._modeSwitch.remove();
+    this._toolbar.destroy();
+    this._popups.forEach(popup => popup.remove());
+    this._popups = [];
     tooltip.hide();
   }
 

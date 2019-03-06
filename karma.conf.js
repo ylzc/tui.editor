@@ -75,9 +75,10 @@ configurator.nhnent = function(defaultConfig) {
   if (BROWSER === 'Firefox' || !BROWSER) {
     customLaunchers['Firefox-WebDriver'] = nhnentLauncher('WebDriver', 'firefox');
   }
-  if (BROWSER === 'Safari' || !BROWSER) {
-    customLaunchers['Safari-WebDriver'] = nhnentLauncher('WebDriver', 'safari');
-  }
+  // NE does not support Safari
+  // if (BROWSER === 'Safari' || !BROWSER) {
+  //   customLaunchers['Safari-WebDriver'] = nhnentLauncher('WebDriver', 'safari');
+  // }
   defaultConfig.concurrency = 1;
   defaultConfig.browsers = Object.keys(defaultConfig.customLaunchers);
 };
@@ -110,7 +111,7 @@ configurator.saucelabs = function(defaultConfig) {
     customLaunchers.sl_ie_11 = saucelabsLauncher('SauceLabs', 'internet explorer', 'Windows 8.1', '11.0');
   }
   if (BROWSER === 'Edge' || !BROWSER) {
-    customLaunchers.sl_edge_14 = saucelabsLauncher('SauceLabs', 'MicrosoftEdge', 'Windows 10', 'latest-1');
+    customLaunchers.sl_edge_14 = saucelabsLauncher('SauceLabs', 'MicrosoftEdge', 'Windows 10', 'latest-2');
   }
   if (BROWSER === 'Safari' || !BROWSER) {
     customLaunchers.sl_safari = saucelabsLauncher('SauceLabs', 'safari', 'macOS 10.13', 'latest');

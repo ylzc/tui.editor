@@ -22,27 +22,35 @@ const TASK_CHECKED_CLASS_NAME = 'checked';
  */
 class ToastUIEditorViewer {
   /**
-     * Viewer
-     * @param {object} options Option object
-        * @param {string} options.initialValue Editor's initial value
-        * @param {object} options.events eventlist Event list
-            * @param {function} options.events.load It would be emitted when editor fully load
-            * @param {function} options.events.change It would be emitted when content changed
-            * @param {function} options.events.stateChange It would be emitted when format change by cursor position
-            * @param {function} options.events.focus It would be emitted when editor get focus
-            * @param {function} options.events.blur It would be emitted when editor loose focus
-        * @param {object} options.hooks Hook list
-            * @param {function} options.hooks.previewBeforeHook Submit preview to hook URL before preview be shown
+   * Viewer
+   * @param {object} options Option object
+    * @param {HTMLElement} options.el - container element
+    * @param {string} options.initialValue Editor's initial value
+    * @param {object} options.events eventlist Event list
+      * @param {function} options.events.load It would be emitted when editor fully load
+      * @param {function} options.events.change It would be emitted when content changed
+      * @param {function} options.events.stateChange It would be emitted when format change by cursor position
+      * @param {function} options.events.focus It would be emitted when editor get focus
+      * @param {function} options.events.blur It would be emitted when editor loose focus
+    * @param {object} options.hooks Hook list
+      * @param {function} options.hooks.previewBeforeHook Submit preview to hook URL before preview be shown
+    * @param {string[]} [options.exts] - extensions
     */
   constructor(options) {
     this.options = $.extend({
       useDefaultHTMLSanitizer: true,
-      codeBlockLanguages: CodeBlockManager.getHighlightJSLanguages()
+      codeBlockLanguages: CodeBlockManager.getHighlightJSLanguages(),
+      customConvertor: null
     }, options);
 
     this.eventManager = new EventManager();
     this.commandManager = new CommandManager(this);
-    this.convertor = new Convertor(this.eventManager);
+    if (this.options.customConvertor) {
+      // eslint-disable-next-line new-cap
+      this.convertor = new this.options.customConvertor(this.eventManager);
+    } else {
+      this.convertor = new Convertor(this.eventManager);
+    }
     this.toMarkOptions = null;
 
     if (this.options.useDefaultHTMLSanitizer) {
@@ -137,6 +145,7 @@ class ToastUIEditorViewer {
   remove() {
     this.eventManager.emit('removeEditor');
     this.preview.$el.off('mousedown', $.proxy(this._toggleTask, this));
+    this.preview.remove();
     this.options = null;
     this.eventManager = null;
     this.commandManager = null;
@@ -216,6 +225,12 @@ ToastUIEditorViewer.codeBlockManager = codeBlockManager;
  * @type {MarkdownIt}
  */
 ToastUIEditorViewer.markdownitHighlight = Convertor.getMarkdownitHighlightRenderer();
+
+/**
+ * MarkdownIt instance
+ * @type {MarkdownIt}
+ */
+ToastUIEditorViewer.markdownit = Convertor.getMarkdownitRenderer();
 
 /**
  * @ignore

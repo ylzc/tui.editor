@@ -35,10 +35,10 @@ if (i18n) {
   });
 
   i18n.setLanguage(['nl', 'nl_NL'], {
-    'Merge cells': 'cellen samenvoegen',
-    'Unmerge cells': 'Samenvoegen cellen ongedaan maken',
-    'Cannot change part of merged cell': 'Kan geen deel uit van samengevoegde cel te veranderen.',
-    'Cannot paste row merged cells into the table header': 'Kan niet plakken rij samengevoegde cellen in de koptekst. '
+    'Merge cells': 'Cellen samenvoegen',
+    'Unmerge cells': 'Samengevoegde cellen ongedaan maken',
+    'Cannot change part of merged cell': 'Kan geen deel uit van een samengevoegde cel veranderen.',
+    'Cannot paste row merged cells into the table header': 'Kan geen rij met samengevoegde cellen in de koptekst plakken.'
   });
 
   i18n.setLanguage(['zh', 'zh_CN'], {
@@ -81,5 +81,40 @@ if (i18n) {
     'Unmerge cells': 'Hücreleri ayır',
     'Cannot change part of merged cell': 'Birleştirilmiş hücrelerin bir kısmı değiştirelemez.',
     'Cannot paste row merged cells into the table header': 'Satırda birleştirilmiş hücreler sütun başlığına yapıştırılamaz'
+  });
+
+  i18n.setLanguage(['fi', 'fi_FI'], {
+    'Merge cells': 'Yhdistä solut',
+    'Unmerge cells': 'Jaa solut',
+    'Cannot change part of merged cell': 'Yhdistettyjen solujen osaa ei voi muuttaa',
+    'Cannot paste row merged cells into the table header': 'Soluja ei voi yhdistää taulukon otsikkoriviin'
+  });
+
+  i18n.setLanguage(['cs', 'cs_CZ'], {
+    'Merge cells': 'Spojit buňky',
+    'Unmerge cells': 'Rozpojit buňky',
+    'Cannot change part of merged cell': 'Nelze měnit část spojené buňky',
+    'Cannot paste row merged cells into the table header': 'Nelze vkládat spojené buňky do záhlaví tabulky'
+  });
+
+  i18n.setLanguage(['ar', 'ar_AR'], {
+    'Merge cells': 'دمج الوحدات',
+    'Unmerge cells': 'إلغاء دمج الوحدات',
+    'Cannot change part of merged cell': 'لا يمكن تغيير جزء من الخلية المدموجة',
+    'Cannot paste row merged cells into the table header': 'لا يمكن لصق الخلايا المدموجة من صف واحد في رأس الجدول'
+  });
+
+  i18n.setLanguage(['pl', 'pl_PL'], {
+    'Merge cells': 'Scal komórki',
+    'Unmerge cells': 'Rozłącz komórki',
+    'Cannot change part of merged cell': 'Nie można zmienić części scalonej komórki.',
+    'Cannot paste row merged cells into the table header': 'Nie można wkleić komórek o scalonym rzędzie w nagłówek tabeli.'
+  });
+
+  i18n.setLanguage(['zh', 'zh_TW'], {
+    'Merge cells': '合併儲存格',
+    'Unmerge cells': '取消合併儲存格',
+    'Cannot change part of merged cell': '無法變更儲存格的一部分。',
+    'Cannot paste row merged cells into the table header': '無法將合併的儲存格貼上至表格標題中。'
   });
 }

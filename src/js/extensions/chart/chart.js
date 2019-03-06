@@ -321,7 +321,8 @@ function setDefaultOptions(chartOptions, extensionOptions, chartContainer) {
   chartOptions = util.extend({
     editorChart: {},
     chart: {},
-    chartExportMenu: {}
+    chartExportMenu: {},
+    usageStatistics: extensionOptions.usageStatistics
   }, chartOptions);
 
   // set default extension options
@@ -425,18 +426,18 @@ function _setWwCodeBlockManagerForChart(editor) {
   componentManager.removeManager('codeblock');
   componentManager.addManager(class extends WwCodeBlockManager {
     /**
-     * Wrap table nodes into code block as TSV
+     * Convert table nodes into code block as TSV
      * @memberof WwCodeBlockManager
      * @param {Array.<Node>} nodes Node array
      * @returns {HTMLElement} Code block element
      */
-    convertToCodeblock(nodes) {
+    convertNodesToText(nodes) {
       if (nodes.length !== 1 || nodes[0].tagName !== 'TABLE') {
-        return super.convertToCodeblock(nodes);
+        return super.convertNodesToText(nodes);
       }
 
-      const $codeblock = $('<pre />');
       const node = nodes.shift();
+      let str = '';
 
       // convert table to 2-dim array
       const cells = [].slice.call(node.rows).map(
@@ -446,11 +447,9 @@ function _setWwCodeBlockManagerForChart(editor) {
       );
 
       const tsvRows = _reduceToTSV(cells);
-      $codeblock.append(tsvRows.reduce((acc, row) => acc + `<div>${row}</div>`, []));
+      str += tsvRows.reduce((acc, row) => acc + `${row}\n`, []);
 
-      $codeblock.attr('data-te-codeblock', '');
-
-      return $codeblock[0];
+      return str;
     }
   });
 }
@@ -516,6 +515,11 @@ function chartExtension(editor, options = {}) {
   if (optionLanguages && optionLanguages.indexOf(LANG) < 0) {
     optionLanguages.push(LANG);
   }
+
+  options = util.extend({
+    usageStatistics: editor.options.usageStatistics
+  }, options);
+
   codeBlockManager.setReplacer(LANG, codeBlockChartDataAndOptions => {
     return chartReplacer(codeBlockChartDataAndOptions, options);
   });

@@ -14,7 +14,7 @@ import CommandManager from '../commandManager';
  */
 const Blockquote = CommandManager.command('wysiwyg', /** @lends Blockquote */{
   name: 'Blockquote',
-  keyMap: ['CTRL+Q', 'META+Q'],
+  keyMap: ['ALT+Q', 'ALT+Q'],
   /**
    * command handler
    * @param {WysiwygEditor} wwe wysiwygEditor instance
@@ -25,8 +25,11 @@ const Blockquote = CommandManager.command('wysiwyg', /** @lends Blockquote */{
     wwe.focus();
 
     if (!sq.hasFormat('TABLE') && !sq.hasFormat('PRE')) {
-      wwe.unwrapBlockTag();
-      sq.increaseQuoteLevel();
+      if (sq.hasFormat('BLOCKQUOTE')) {
+        sq.decreaseQuoteLevel();
+      } else {
+        sq.increaseQuoteLevel();
+      }
     }
   }
 });

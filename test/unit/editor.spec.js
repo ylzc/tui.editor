@@ -7,6 +7,7 @@ import MarkdownIt from 'markdown-it';
 import util from 'tui-code-snippet';
 
 import Editor from '../../src/js/editor';
+import Convertor from '../../src/js/convertor';
 import {CodeBlockManager} from '../../src/js/codeBlockManager';
 import {I18n} from '../../src/js/i18n';
 import Button from '../../src/js/ui/button';
@@ -291,25 +292,25 @@ describe('Editor', () => {
     });
 
     describe('usageStatistics', () => {
-      xit('should send request hostname in payload by default', () => {
-        spyOn(util, 'imagePing');
+      it('should send request hostname in payload by default', () => {
+        spyOn(util, 'sendHostname');
 
         editor = new Editor({
           el: container
         });
 
-        expect(util.imagePing).toHaveBeenCalled();
+        expect(util.sendHostname).toHaveBeenCalled();
       });
 
-      xit('should not send request if the option is set to false', () => {
-        spyOn(util, 'imagePing');
+      it('should not send request if the option is set to false', () => {
+        spyOn(util, 'sendHostname');
 
         editor = new Editor({
           el: container,
           usageStatistics: false
         });
 
-        expect(util.imagePing).not.toHaveBeenCalled();
+        expect(util.sendHostname).not.toHaveBeenCalled();
       });
     });
 
@@ -389,6 +390,27 @@ describe('Editor', () => {
 
         const modeSwitch = editor.getUI().getModeSwitch();
         expect(modeSwitch.isShown()).toBe(true);
+      });
+    });
+
+    describe('customConvertor', () => {
+      it('should use default convertor if the option value is not set', () => {
+        editor = new Editor({
+          el: container
+        });
+        expect(editor.convertor instanceof Convertor).toBe(true);
+      });
+
+      it('should use custom convertor if the option value is set', () => {
+        const CustomConvertor = class extends Convertor {
+        };
+
+        editor = new Editor({
+          el: container,
+          customConvertor: CustomConvertor
+        });
+        expect(editor.convertor instanceof Convertor).toBe(true);
+        expect(editor.convertor instanceof CustomConvertor).toBe(true);
       });
     });
   });

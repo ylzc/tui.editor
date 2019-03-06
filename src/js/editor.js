@@ -69,8 +69,6 @@ import wwTask from './wysiwygCommands/task';
 import wwCode from './wysiwygCommands/code';
 import wwCodeBlock from './wysiwygCommands/codeBlock';
 
-import {sendHostName} from './util';
-
 // langs
 import './langs/en_US';
 import './langs/ko_KR';
@@ -83,8 +81,14 @@ import './langs/ru_RU';
 import './langs/fr_FR';
 import './langs/uk_UA';
 import './langs/tr_TR';
+import './langs/fi_FI';
+import './langs/cs_CZ';
+import './langs/ar_AR';
+import './langs/pl_PL';
+import './langs/zh_TW';
 
 const __nedInstance = [];
+const gaTrackingId = 'UA-129966929-1';
 
 /**
  * @callback addImageBlobHook
@@ -98,31 +102,38 @@ const __nedInstance = [];
  */
 class ToastUIEditor {
   /**
-     * ToastUI Editor
-     * @param {object} options Option object
-         * @param {string} [options.height='300px'] - Editor's height style value. Height is applied as border-box ex) '300px', '100%', 'auto'
-         * @param {string} [options.minHeight='200px'] - Editor's min-height style value in pixel ex) '300px'
-         * @param {string} options.initialValue - Editor's initial value
-         * @param {string} options.previewStyle - Markdown editor's preview style (tab, vertical)
-         * @param {string} options.initialEditType - Initial editor type (markdown, wysiwyg)
-         * @param {object} options.events - eventlist Event list
-             * @param {function} options.events.load - It would be emitted when editor fully load
-             * @param {function} options.events.change - It would be emitted when content changed
-             * @param {function} options.events.stateChange - It would be emitted when format change by cursor position
-             * @param {function} options.events.focus - It would be emitted when editor get focus
-             * @param {function} options.events.blur - It would be emitted when editor loose focus
-         * @param {object} options.hooks - Hook list
-             * @param {function} options.hooks.previewBeforeHook - Submit preview to hook URL before preview be shown
-             * @param {addImageBlobHook} options.hooks.addImageBlobHook - hook for image upload.
-        * @param {string} [options.language='en_US'] - language
-        * @param {boolean} [options.useCommandShortcut=true] - whether use keyboard shortcuts to perform commands
-        * @param {boolean} [options.useDefaultHTMLSanitizer=true] - use default htmlSanitizer
-        * @param {string[]} [options.codeBlockLanguages] - supported code block languages to be listed. default is what highlight.js supports
-        * @param {boolean} [options.usageStatistics=true] - send hostname to google analytics
-        * @param {object[]} [options.toolbarItems] - toolbar items.
-        * @param {boolean} [options.hideModeSwitch=false] - hide mode switch tab bar
+   * ToastUI Editor
+   * @param {object} options Option object
+    * @param {HTMLElement} options.el - container element
+    * @param {string} [options.height='300px'] - Editor's height style value. Height is applied as border-box ex) '300px', '100%', 'auto'
+    * @param {string} [options.minHeight='200px'] - Editor's min-height style value in pixel ex) '300px'
+    * @param {string} [options.initialValue] - Editor's initial value
+    * @param {string} [options.previewStyle] - Markdown editor's preview style (tab, vertical)
+    * @param {string} [options.initialEditType] - Initial editor type (markdown, wysiwyg)
+    * @param {object[]} [options.events] - eventlist Event list
+      * @param {function} options.events.load - It would be emitted when editor fully load
+      * @param {function} options.events.change - It would be emitted when content changed
+      * @param {function} options.events.stateChange - It would be emitted when format change by cursor position
+      * @param {function} options.events.focus - It would be emitted when editor get focus
+      * @param {function} options.events.blur - It would be emitted when editor loose focus
+    * @param {object[]} [options.hooks] - Hook list
+      * @param {function} options.hooks.previewBeforeHook - Submit preview to hook URL before preview be shown
+      * @param {addImageBlobHook} options.hooks.addImageBlobHook - hook for image upload.
+    * @param {string} [options.language='en_US'] - language
+    * @param {boolean} [options.useCommandShortcut=true] - whether use keyboard shortcuts to perform commands
+    * @param {boolean} [options.useDefaultHTMLSanitizer=true] - use default htmlSanitizer
+    * @param {string[]} [options.codeBlockLanguages] - supported code block languages to be listed. default is what highlight.js supports
+    * @param {boolean} [options.usageStatistics=true] - send hostname to google analytics
+    * @param {string[]} [options.toolbarItems] - toolbar items.
+    * @param {boolean} [options.hideModeSwitch=false] - hide mode switch tab bar
+    * @param {string[]} [options.exts] - extensions
+    * @param {object} [options.customConvertor] - convertor extention
+    * @param {string} [options.placeholder] - The placeholder text of the editable element.
     */
   constructor(options) {
+    this.initialHtml = options.el.innerHTML;
+    options.el.innerHTML = '';
+
     this.options = $.extend({
       previewStyle: 'tab',
       initialEditType: 'markdown',
@@ -155,7 +166,8 @@ class ToastUIEditor {
         'code',
         'codeblock'
       ],
-      hideModeSwitch: false
+      hideModeSwitch: false,
+      customConvertor: null
     }, options);
 
     this.eventManager = new EventManager();
@@ -166,7 +178,12 @@ class ToastUIEditor {
       useCommandShortcut: this.options.useCommandShortcut
     });
 
-    this.convertor = new Convertor(this.eventManager);
+    if (this.options.customConvertor) {
+      // eslint-disable-next-line new-cap
+      this.convertor = new this.options.customConvertor(this.eventManager);
+    } else {
+      this.convertor = new Convertor(this.eventManager);
+    }
 
     if (this.options.useDefaultHTMLSanitizer) {
       this.convertor.initHtmlSanitizer();
@@ -202,6 +219,14 @@ class ToastUIEditor {
 
     this.setValue(this.options.initialValue, false);
 
+    if (this.options.placeholder) {
+      this.setPlaceholder(this.options.placeholder);
+    }
+
+    if (!this.options.initialValue) {
+      this.setHtml(this.initialHtml, false);
+    }
+
     extManager.applyExtension(this, this.options.exts);
 
     this.eventManager.emit('load', this);
@@ -211,7 +236,7 @@ class ToastUIEditor {
     this._addDefaultCommands();
 
     if (this.options.usageStatistics) {
-      sendHostName();
+      util.sendHostname('editor', gaTrackingId);
     }
   }
 
@@ -230,6 +255,7 @@ class ToastUIEditor {
   /**
    * call commandManager's exec method
    * @memberof ToastUIEditor
+   * @param {*} ...args Command argument
    */
   exec(...args) {
     this.commandManager.exec(...args);
@@ -414,7 +440,7 @@ class ToastUIEditor {
    */
   setHtml(html, cursorToEnd = true) {
     html = html || '';
-    this.wwEditor.setValue(html);
+    this.wwEditor.setValue(html, cursorToEnd);
 
     if (this.isMarkdownMode()) {
       const markdown = this.convertor.toMarkdown(this.wwEditor.getValue(), this.toMarkOptions);
@@ -552,7 +578,7 @@ class ToastUIEditor {
   /**
    * Get current editor mode name
    * @memberof ToastUIEditor
-   * @returns {string}
+   * @returns {Object} mdEditor or wwEditor
    */
   getCurrentModeEditor() {
     let editor;
@@ -606,7 +632,7 @@ class ToastUIEditor {
    * Change editor's mode to given mode string
    * @memberof ToastUIEditor
    * @param {string} mode - Editor mode name of want to change
-   * @param {boolean} isWithoutFocus - Change mode without focus
+   * @param {boolean} [isWithoutFocus] - Change mode without focus
    */
   changeMode(mode, isWithoutFocus) {
     if (this.currentMode === mode) {
@@ -623,6 +649,7 @@ class ToastUIEditor {
       this.eventManager.emit('changeModeToWysiwyg');
     } else {
       this.layout.switchToMarkdown();
+      this.mdEditor.resetState();
       this.mdEditor.setValue(
         this.convertor.toMarkdown(this.wwEditor.getValue(), this.toMarkOptions), !isWithoutFocus
       );
@@ -647,6 +674,7 @@ class ToastUIEditor {
     this.wwEditor.remove();
     this.mdEditor.remove();
     this.layout.remove();
+    this.preview.remove();
 
     if (this.getUI()) {
       this.getUI().remove();
@@ -751,6 +779,15 @@ class ToastUIEditor {
   }
 
   /**
+   * Set the placeholder on all editors
+   * @param {string} placeholder - placeholder to set
+   */
+  setPlaceholder(placeholder) {
+    this.mdEditor.setPlaceholder(placeholder);
+    this.wwEditor.setPlaceholder(placeholder);
+  }
+
+  /**
    * Get instance of TUIEditor
    * @memberof ToastUIEditor
    * @returns {Array}
@@ -773,7 +810,7 @@ class ToastUIEditor {
    * Factory method for Editor
    * @memberof ToastUIEditor
    * @param {object} options Option for initialize TUIEditor
-   * @returns {ToastUIEditor}
+   * @returns {object} ToastUIEditor or ToastUIEditorViewer
    */
   static factory(options) {
     let tuiEditor;
@@ -848,5 +885,11 @@ ToastUIEditor.CommandManager = CommandManager;
  * @type {MarkdownIt}
  */
 ToastUIEditor.markdownitHighlight = Convertor.getMarkdownitHighlightRenderer();
+
+/**
+ * MarkdownIt instance
+ * @type {MarkdownIt}
+ */
+ToastUIEditor.markdownit = Convertor.getMarkdownitRenderer();
 
 module.exports = ToastUIEditor;

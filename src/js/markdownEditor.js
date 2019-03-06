@@ -78,7 +78,6 @@ class MarkdownEditor extends CodeMirrorExt {
       this.eventManager.emit('focus', {
         source: 'markdown'
       });
-      this.getEditor().refresh();
     });
 
     this.cm.on('blur', () => {
@@ -146,15 +145,13 @@ class MarkdownEditor extends CodeMirrorExt {
 
     this.cm.on('cursorActivity', () => {
       const token = this.cm.getTokenAt(this.cm.getCursor());
-
-      const {base, overlay} = token.state;
-
+      const {base} = token.state;
       const state = {
         bold: !!base.strong,
         italic: !!base.em,
         strike: !!base.strikethrough,
-        code: !!overlay.code,
-        codeBlock: !!overlay.codeBlock,
+        code: base.code > 0,
+        codeBlock: base.code === -1,
         quote: !!base.quote,
         list: !!base.list,
         task: !!base.taskList,
@@ -184,7 +181,7 @@ class MarkdownEditor extends CodeMirrorExt {
    * Get text object of current range
    * @memberof MarkdownEditor
    * @param {{start, end}} range Range object of each editor
-   * @returns {object}
+   * @returns {MdTextObject}
    */
   getTextObject(range) {
     return new MdTextObject(this, range);
@@ -234,6 +231,14 @@ class MarkdownEditor extends CodeMirrorExt {
     });
 
     return result;
+  }
+
+  /**
+   * latestState reset
+   * @memberof MarkdownEditor
+   */
+  resetState() {
+    this._latestState = null;
   }
 
   /**
