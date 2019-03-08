@@ -4,6 +4,7 @@
  */
 import $ from 'jquery';
 import util from 'tui-code-snippet';
+import Tribute from 'tributejs/src/index';
 
 import domUtils from './domUtils';
 import WwClipboardManager from './wwClipboardManager';
@@ -41,9 +42,10 @@ class WysiwygEditor {
    * Creates an instance of WysiwygEditor.
    * @param {jQuery} $el element to insert editor
    * @param {EventManager} eventManager EventManager instance
+   * @param {options} options init options about at
    * @memberof WysiwygEditor
    */
-  constructor($el, eventManager) {
+  constructor($el, eventManager, options) {
     this.componentManager = new ComponentManager(this);
     this.eventManager = eventManager;
     this.$editorContainerEl = $el;
@@ -59,6 +61,9 @@ class WysiwygEditor {
     this._initDefaultKeyEventHandler();
 
     this.debouncedPostProcessForChange = util.debounce(() => this.postProcessForChange(), 0);
+    this.options = options || {
+      at: {}
+    };
   }
 
   /**
@@ -77,6 +82,8 @@ class WysiwygEditor {
       }
     });
     this.editor.blockCommandShortcuts();
+    this.tribute = new Tribute(this.options.at);// 添加@
+    this.tribute.attach(this.editor.get$Body());
 
     this._clipboardManager = new WwClipboardManager(this);
     this._initSquireEvent();
@@ -91,6 +98,10 @@ class WysiwygEditor {
       container: this.$editorContainerEl,
       wysiwygEditor: this
     });
+  }
+
+  _atActive() {
+    return this.tribute && this.tribute.isActive;
   }
 
   /**
@@ -319,7 +330,7 @@ class WysiwygEditor {
         const range = this.getRange();
 
         if (domUtils.isTextNode(range.commonAncestorContainer)
-                    && domUtils.isTextNode(range.commonAncestorContainer.previousSibling)) {
+          && domUtils.isTextNode(range.commonAncestorContainer.previousSibling)) {
           const prevLen = range.commonAncestorContainer.previousSibling.length;
           const curEl = range.commonAncestorContainer;
 
@@ -503,6 +514,12 @@ class WysiwygEditor {
    */
   _initDefaultKeyEventHandler() {
     this.addKeyEventHandler('ENTER', (ev, range) => {
+      if (this._atActive()) {
+        ev.preventDefault();
+        ev.stopPropagation();
+
+        return false;
+      }
       if (this._isInOrphanText(range)) {
         // We need this cuz input text right after table make orphan text in webkit
         this.defer(() => {
@@ -512,6 +529,8 @@ class WysiwygEditor {
       }
 
       this.defer(() => this.scrollIntoCursor());
+
+      return true;
     });
 
     this.addKeyEventHandler('TAB', ev => {
@@ -586,7 +605,7 @@ class WysiwygEditor {
    */
   _isInOrphanText(range) {
     return range.startContainer.nodeType === Node.TEXT_NODE
-            && range.startContainer.parentNode === this.get$Body()[0];
+      && range.startContainer.parentNode === this.get$Body()[0];
   }
 
   /**
@@ -1013,7 +1032,7 @@ class WysiwygEditor {
   breakToNewDefaultBlock(range, where) {
     const div = this.editor.createDefaultBlock();
     const currentNode = domUtils.getChildNodeByOffset(range.startContainer, range.startOffset)
-            || domUtils.getChildNodeByOffset(range.startContainer, range.startOffset - 1);
+      || domUtils.getChildNodeByOffset(range.startContainer, range.startOffset - 1);
     const appendBefore = domUtils.getParentUntil(currentNode, this.get$Body()[0]);
 
     if (where === 'before') {
@@ -1226,7 +1245,7 @@ class WysiwygEditor {
 
   _isCursorNotInRestrictedAreaOfTabAction(editor) {
     return !editor.hasFormat('li')
-            && !editor.hasFormat('blockquote') && !editor.hasFormat('table');
+      && !editor.hasFormat('blockquote') && !editor.hasFormat('table');
   }
 
   /**
@@ -1255,4 +1274,5 @@ class WysiwygEditor {
     return wwe;
   }
 }
+
 export default WysiwygEditor;

@@ -104,32 +104,32 @@ class ToastUIEditor {
   /**
    * ToastUI Editor
    * @param {object} options Option object
-    * @param {HTMLElement} options.el - container element
-    * @param {string} [options.height='300px'] - Editor's height style value. Height is applied as border-box ex) '300px', '100%', 'auto'
-    * @param {string} [options.minHeight='200px'] - Editor's min-height style value in pixel ex) '300px'
-    * @param {string} [options.initialValue] - Editor's initial value
-    * @param {string} [options.previewStyle] - Markdown editor's preview style (tab, vertical)
-    * @param {string} [options.initialEditType] - Initial editor type (markdown, wysiwyg)
-    * @param {object[]} [options.events] - eventlist Event list
-      * @param {function} options.events.load - It would be emitted when editor fully load
-      * @param {function} options.events.change - It would be emitted when content changed
-      * @param {function} options.events.stateChange - It would be emitted when format change by cursor position
-      * @param {function} options.events.focus - It would be emitted when editor get focus
-      * @param {function} options.events.blur - It would be emitted when editor loose focus
-    * @param {object[]} [options.hooks] - Hook list
-      * @param {function} options.hooks.previewBeforeHook - Submit preview to hook URL before preview be shown
-      * @param {addImageBlobHook} options.hooks.addImageBlobHook - hook for image upload.
-    * @param {string} [options.language='en_US'] - language
-    * @param {boolean} [options.useCommandShortcut=true] - whether use keyboard shortcuts to perform commands
-    * @param {boolean} [options.useDefaultHTMLSanitizer=true] - use default htmlSanitizer
-    * @param {string[]} [options.codeBlockLanguages] - supported code block languages to be listed. default is what highlight.js supports
-    * @param {boolean} [options.usageStatistics=true] - send hostname to google analytics
-    * @param {string[]} [options.toolbarItems] - toolbar items.
-    * @param {boolean} [options.hideModeSwitch=false] - hide mode switch tab bar
-    * @param {string[]} [options.exts] - extensions
-    * @param {object} [options.customConvertor] - convertor extention
-    * @param {string} [options.placeholder] - The placeholder text of the editable element.
-    */
+   * @param {HTMLElement} options.el - container element
+   * @param {string} [options.height='300px'] - Editor's height style value. Height is applied as border-box ex) '300px', '100%', 'auto'
+   * @param {string} [options.minHeight='200px'] - Editor's min-height style value in pixel ex) '300px'
+   * @param {string} [options.initialValue] - Editor's initial value
+   * @param {string} [options.previewStyle] - Markdown editor's preview style (tab, vertical)
+   * @param {string} [options.initialEditType] - Initial editor type (markdown, wysiwyg)
+   * @param {object[]} [options.events] - eventlist Event list
+   * @param {function} options.events.load - It would be emitted when editor fully load
+   * @param {function} options.events.change - It would be emitted when content changed
+   * @param {function} options.events.stateChange - It would be emitted when format change by cursor position
+   * @param {function} options.events.focus - It would be emitted when editor get focus
+   * @param {function} options.events.blur - It would be emitted when editor loose focus
+   * @param {object[]} [options.hooks] - Hook list
+   * @param {function} options.hooks.previewBeforeHook - Submit preview to hook URL before preview be shown
+   * @param {addImageBlobHook} options.hooks.addImageBlobHook - hook for image upload.
+   * @param {string} [options.language='en_US'] - language
+   * @param {boolean} [options.useCommandShortcut=true] - whether use keyboard shortcuts to perform commands
+   * @param {boolean} [options.useDefaultHTMLSanitizer=true] - use default htmlSanitizer
+   * @param {string[]} [options.codeBlockLanguages] - supported code block languages to be listed. default is what highlight.js supports
+   * @param {boolean} [options.usageStatistics=true] - send hostname to google analytics
+   * @param {string[]} [options.toolbarItems] - toolbar items.
+   * @param {boolean} [options.hideModeSwitch=false] - hide mode switch tab bar
+   * @param {string[]} [options.exts] - extensions
+   * @param {object} [options.customConvertor] - convertor extention
+   * @param {string} [options.placeholder] - The placeholder text of the editable element.
+   */
   constructor(options) {
     this.initialHtml = options.el.innerHTML;
     options.el.innerHTML = '';
@@ -204,9 +204,9 @@ class ToastUIEditor {
 
     this.setUI(this.options.UI || new DefaultUI(this));
 
-    this.mdEditor = MarkdownEditor.factory(this.layout.getMdEditorContainerEl(), this.eventManager);
+    this.mdEditor = MarkdownEditor.factory(this.layout.getMdEditorContainerEl(), this.eventManager, this.options);
     this.preview = new MarkdownPreview(this.layout.getPreviewEl(), this.eventManager, this.convertor);
-    this.wwEditor = WysiwygEditor.factory(this.layout.getWwEditorContainerEl(), this.eventManager);
+    this.wwEditor = WysiwygEditor.factory(this.layout.getWwEditorContainerEl(), this.eventManager, this.options);
     this.toMarkOptions = null;
 
     this.changePreviewStyle(this.options.previewStyle);
